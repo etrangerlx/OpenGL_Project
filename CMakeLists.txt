@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.10)
 project(OpenGL_test)
 
 set(GLAD_HOME  "E:/SourceCode/glad")
@@ -27,8 +27,26 @@ link_directories(${GLFW_HOME}/lib)
 link_directories(${SOIL_HOME}/lib)
 
 set(CMAKE_CXX_STANDARD 14)
+#设置输出目录
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+#设置动态链接库文件到运行时目录
+#设置资源文件到运行时目录
+set(THRIFT_SRCS
+        ${GLEW_HOME}/bin/*.dll
+        ${GLFW_HOME}/bin/*.dll
+        ${SOIL_HOME}/bin/*.dll
+        ${CMAKE_CURRENT_LIST_DIR}/img/*.png
+        ${CMAKE_CURRENT_LIST_DIR}/textures.frag
+        ${CMAKE_CURRENT_LIST_DIR}/textures.vs)
+message(STATUS ${THRIFT_SRCS})
+file(GLOB_RECURSE DLL_FILE ${THRIFT_SRCS})
+message(STATUS DLL_FILE = ${DLL_FILE})
+
+file(COPY ${DLL_FILE} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 add_executable(OpenGL_test Shader.cpp main.cpp)
 
 target_link_libraries(OpenGL_test   libglew32.dll.a libglfw3dll.a libsoil2.dll.a  ${GLFW_HOME}/lib opengl32)
-#target_link_libraries(OpenGL_test glfw3 GLEW GL pthread)
+
+
+
