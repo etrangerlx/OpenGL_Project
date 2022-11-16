@@ -5,6 +5,7 @@ set(GLAD_HOME  "E:/SourceCode/glad")
 set(GLEW_HOME  "E:/SourceCode/GLEW")
 set(GLFW_HOME  "E:/SourceCode/GLFW")
 set(SOIL_HOME  "E:/SourceCode/SOIL2/build/Install")
+set(GLM_HOME "E:/SourceCode/glm-0.9.9.8")
 
 #find_library(
 #        GLEW_LIBRARY
@@ -21,6 +22,7 @@ include_directories(${GLAD_HOME}/include)
 include_directories(${GLEW_HOME}/include)
 include_directories(${GLFW_HOME}/include)
 include_directories(${SOIL_HOME}/include)
+include_directories(${GLM_HOME})
 
 link_directories(${GLEW_HOME}/lib)
 link_directories(${GLFW_HOME}/lib)
@@ -35,9 +37,9 @@ set(THRIFT_SRCS
         ${GLEW_HOME}/bin/*.dll
         ${GLFW_HOME}/bin/*.dll
         ${SOIL_HOME}/bin/*.dll
-        ${CMAKE_CURRENT_LIST_DIR}/img/*.png
-        ${CMAKE_CURRENT_LIST_DIR}/textures.frag
-        ${CMAKE_CURRENT_LIST_DIR}/textures.vs)
+        ${CMAKE_CURRENT_LIST_DIR}/img/*
+        ${CMAKE_CURRENT_LIST_DIR}/*.frag
+        ${CMAKE_CURRENT_LIST_DIR}/*.vs)
 message(STATUS ${THRIFT_SRCS})
 file(GLOB_RECURSE DLL_FILE ${THRIFT_SRCS})
 message(STATUS DLL_FILE = ${DLL_FILE})
