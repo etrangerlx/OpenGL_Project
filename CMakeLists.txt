@@ -6,6 +6,7 @@ set(GLEW_HOME  "E:/SourceCode/GLEW")
 set(GLFW_HOME  "E:/SourceCode/GLFW")
 set(SOIL_HOME  "E:/SourceCode/SOIL2/build/Install")
 set(GLM_HOME "E:/SourceCode/glm-0.9.9.8")
+set(STB_HOME "E:/SourceCode/stb")
 
 #find_library(
 #        GLEW_LIBRARY
@@ -23,6 +24,7 @@ include_directories(${GLEW_HOME}/include)
 include_directories(${GLFW_HOME}/include)
 include_directories(${SOIL_HOME}/include)
 include_directories(${GLM_HOME})
+include_directories(${STB_HOME})
 
 link_directories(${GLEW_HOME}/lib)
 link_directories(${GLFW_HOME}/lib)
