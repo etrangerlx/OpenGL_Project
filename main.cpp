@@ -7,16 +7,18 @@
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
 #include <string>
-
 #include <stdlib.h>
 
 
-using namespace std;
+// settings
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
 
 int main() {
     std::cout << "Hello, STB_Image" << std::endl;
 
-    string inputPath = "wall.jpg";
+    std::string inputPath = "wall.jpg";
     int iw, ih, n;
 
     // 加载图片获取宽、高、颜色通道信息
@@ -33,7 +35,7 @@ int main() {
                  STBIR_COLORSPACE_SRGB, nullptr
     );
 
-    string outputPath = "output.png";
+    std::string outputPath = "output.png";
     // 写入图片
     stbi_write_png(outputPath.c_str(), ow, oh, n, odata, 0);
 
