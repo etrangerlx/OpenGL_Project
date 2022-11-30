@@ -1,5 +1,6 @@
 ##[Learn OpenGL](https://learnopengl.com/)
-##[Learn OpenGL CN](https://learnopengl-cn.readthedocs.io/zh/latest_https://learnopengl-cn.github.io/)
+##[Learn OpenGL CN](https://learnopengl-cn.readthedocs.io/zh/latest/) 
+[github-oengl-cn](https://learnopengl-cn.github.io)
 ##征服工具链
 工具链全部使用：[MinGW64](https://www.mingw-w64.org)、Cmake、CodeBlocks编译,IDE盗版Clion
 Cmake编译成codeblocks 集成方式
