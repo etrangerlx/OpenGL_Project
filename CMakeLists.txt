@@ -48,7 +48,7 @@ message(STATUS DLL_FILE = ${DLL_FILE})
 
 file(COPY ${DLL_FILE} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-add_executable(OpenGL_test Shader.cpp main.cpp ${GLAD_HOME}/src/glad.c)
+add_executable(OpenGL_test Shader.cpp main.cpp ${GLAD_HOME}/src/glad.c TextureDemo.cpp TextureDemo.h)
 
 target_link_libraries(OpenGL_test   libglew32.dll.a libglfw3dll.a libsoil2.dll.a  ${GLFW_HOME}/lib opengl32)
 
