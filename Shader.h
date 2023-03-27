@@ -16,7 +16,15 @@ class Shader {
 public:
 // 程序ID
     GLuint Program;
+    GLuint vertex;
+    GLuint fragment;
 // 构造器读取并创建Shader
+    Shader();
+    ~Shader();
+    void SetVertex(const GLchar * vertexSourcePath);
+    void SetFragment(const GLchar * fragmentSourcePath);
+    void SetProgram();
+    void SetShader(GLuint &sheder, const GLchar * SourceCode,GLenum shaderType);
     Shader(const GLchar * vertexSourcePath, const GLchar * fragmentSourcePath);
 // 使用Program
     void Use();
