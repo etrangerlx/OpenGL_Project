@@ -12,3 +12,4 @@ Cmake编译成codeblocks 集成方式
 [SOIL2_github](https://github.com/SpartanJ/SOIL2.git) 、[stb_image](https://github.com/nothings/stb) [stb_image使用](https://www.softool.cn/blog-215.html) 、
 [GLM](http://glm.g-truc.net/0.9.5/index.html)
 
+##[OpenCL](https://github.com/KhronosGroup/OpenCL-Guide)
