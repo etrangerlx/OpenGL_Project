@@ -35,12 +35,12 @@ bool ReszieFilter::DownScaleImage_4x(CGrayImage *pInImge, CGrayImage *pOutImage,
         int x = 0;
         for (; x < nOutWidth; x++) {
             int Y = 0;
-            int RowIndex = ((x + 1) << 2) < nInWidth - 1 ? (x + 1) << 2 : nInWidth - 1;
+            int RowIndex = ((x + 1) << 2) < nInWidth - 1 ? ((x + 1) << 2) : nInWidth - 1;
             for (int i = 0; i < 4; i++) {
-                Y += pIn[0][RowIndex - 4];
-                Y += pIn[1][RowIndex - 3];
-                Y += pIn[2][RowIndex - 2];
-                Y += pIn[3][RowIndex - 1];
+                Y += pIn[0][RowIndex - 4 + i];
+                Y += pIn[1][RowIndex - 3 + i];
+                Y += pIn[2][RowIndex - 2 + i];
+                Y += pIn[3][RowIndex - 1 + i];
             }
             Y >>= 4;
             *(pOut + x) = (BYTE) Y;
@@ -131,6 +131,34 @@ bool ReszieFilter::VUpScaleImage_4x(BYTE *pInLine[], BYTE *pOutLine1, BYTE *pOut
         pOutLine2[x] = (BYTE) Y4;
         pOutLine3[x] = (BYTE) Y5;
         pOutLine4[x] = (BYTE) Y6;
+    }
+    return true;
+}
+
+bool ReszieFilter::Process(CGrayImage *pInImge, CGrayImage *pOutImage) {
+    float fWscale = pOutImage->GetWidth() / pInImge->GetWidth();
+    float fHscale = pOutImage->GetHeight() / pInImge->GetHeight();
+
+    return false;
+}
+
+bool ReszieFilter::DownScale(CGrayImage *pInImage, CGrayImage *pOutImage) {
+    int nOutWidth = pOutImage->GetWidth();
+    int nInWidth = pInImage->GetWidth();
+    int nOutHeight = pOutImage->GetHeight();
+    int nInHeight = pInImage->GetHeight();
+    int nWSize = nInWidth / nOutWidth;
+    int nHSize = nInHeight / nOutHeight;
+    int yIn = 0;
+    int yOut = 0;
+    for (; yIn < nInHeight; yIn += nHSize, yOut++) {
+        BYTE *pInLine = pInImage->GetImageData() + yIn * nInWidth;
+        BYTE *pOutLine = pOutImage->GetImageData() + yOut * nOutWidth;
+        int xIn = 0;
+        int xOut = 0;
+        for (; xIn < nInWidth; xIn += nWSize, xOut++) {
+            pOutLine[xOut] = pInLine[xIn];
+        }
     }
     return true;
 }

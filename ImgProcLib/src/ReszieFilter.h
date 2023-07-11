@@ -11,7 +11,8 @@ class ReszieFilter {
 private:
     bool HUpScaleImage_4x(BYTE *pInLine, BYTE *pOutLine, int nInWidth, int nOutWidth);
 
-    bool VUpScaleImage_4x(BYTE *pInLine[], BYTE *pOutLine1, BYTE *pOutLine2, BYTE *pOutLine3, BYTE *pOutLine4, int Width);
+    bool
+    VUpScaleImage_4x(BYTE *pInLine[], BYTE *pOutLine1, BYTE *pOutLine2, BYTE *pOutLine3, BYTE *pOutLine4, int Width);
 
 protected:
 
@@ -23,6 +24,10 @@ public:
     bool DownScaleImage_4x(CGrayImage *pInImge, CGrayImage *pOutImage, int nInWidth, int nInHeight, int nInStride = 0);
 
     bool UpScaleImage_4x(CGrayImage *pInImge, CGrayImage *pOutImage, int nInWidth, int nInHeight, int nInStride = 0);
+
+    bool DownScale(CGrayImage *pInImge, CGrayImage *pOutImage);
+
+    bool UpScale(CGrayImage *pInImge, CGrayImage *pOutImage);
 
     bool Process(CGrayImage *pInImge, CGrayImage *pOutImage);
 
