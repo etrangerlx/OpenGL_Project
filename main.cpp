@@ -173,6 +173,20 @@ int main() {
         // Set current value of uniform mix
         glUniform1f(glGetUniformLocation(ourShader.Program, "mixValue"), mixValue);
 
+
+        glm::mat4 trans(1);
+        trans = glm::rotate(trans, float(M_PI/2 *glfwGetTime()), glm::vec3(0.0, 0.0, 1.0));
+//        for(int i = 0;i<4;i++) {
+//            for(int j = 0;j<4;j++) {
+//                std::cout << trans[i][j];
+//                std::cout << ',';
+//            }
+//            std::cout << ';'<<std::endl;
+//        }
+
+        GLuint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
         // Draw container
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
