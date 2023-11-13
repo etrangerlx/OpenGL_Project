@@ -29,6 +29,8 @@
 // Function prototypes
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 
+GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil);
+
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 // Holds uniform value of texture mix
@@ -141,7 +143,7 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // Load, create texture and generate mipmaps
-    unsigned char* image1 = SOIL_load_image("awesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
+    unsigned char *image1 = SOIL_load_image("awesomeface.png", &width, &height, 0, SOIL_LOAD_RGB);
 //    unsigned char *image1 = stbi_load("awesomeface.png", &width, &height, &channel, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image1);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -149,11 +151,36 @@ int main() {
 //    stbi_image_free(image1);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    unsigned char *data = new unsigned char[WIDTH * HEIGHT * 3];
 
+    // Framebuffers
+    GLuint framebuffer;
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    // Create a color attachment texture
+    GLuint textureColorbuffer = generateAttachmentTexture(false, false);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+    // Create a renderbuffer object for depth and stencil attachment (we won't be sampling these)
+    GLuint rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH,
+                          HEIGHT); // Use a single renderbuffer object for both a depth AND stencil buffer.
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER,
+                              rbo); // Now actually attach it
+    // Now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Game loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-
+        /////////////////////////////////////////////////////
+        // Bind to framebuffer and draw to color texture
+        // as we normally would.
+        // //////////////////////////////////////////////////
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         // Render
         // Clear the colorbuffer
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -175,14 +202,16 @@ int main() {
 
 
         glm::mat4 trans(1);
-        trans = glm::rotate(trans, float(M_PI/2 *glfwGetTime()), glm::vec3(0.0, 0.0, 1.0));
-//        for(int i = 0;i<4;i++) {
-//            for(int j = 0;j<4;j++) {
-//                std::cout << trans[i][j];
-//                std::cout << ',';
-//            }
-//            std::cout << ';'<<std::endl;
-//        }
+//        trans = glm::translate(trans, glm::vec3(0.0f, 0.5f, 1.0f));
+        trans = trans + glm::perspective(float(M_PI / 4 * glfwGetTime()), float(WIDTH / HEIGHT), 0.1f, 100.0f);
+//        trans = glm::rotate(trans, float(M_PI/2 *glfwGetTime()), glm::vec3(1.0, 1.0, 0.0));
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                std::cout << trans[i][j];
+                std::cout << ',';
+            }
+            std::cout << ';' << std::endl;
+        }
 
         GLuint transformLoc = glGetUniformLocation(ourShader.Program, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
@@ -191,10 +220,29 @@ int main() {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+        /////////////////////////////////////////////////////
+        // Bind to default framebuffer again and draw the
+        // quad plane with attched screen texture.
+        // //////////////////////////////////////////////////
 
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glReadPixels(0, 0, WIDTH, HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, data);
+        char filename[256];
+        sprintf(filename, "%f.rgb", glfwGetTime());
+        FILE *fout = fopen(filename, "wb");
+        fwrite(data, WIDTH * HEIGHT * 3, 1, fout);
+        if (fout != nullptr) {
+            fclose(fout);
+            fout = nullptr;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         // Swap the screen buffers
         glfwSwapBuffers(window);
     }
+//    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+//    glReadBuffer(GL_COLOR_ATTACHMENT0);
+//    glReadPixels(0, 0, WIDTH, HEIGHT,GL_RGB, GL_UNSIGNED_BYTE, void *pixels);
+//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Properly de-allocate all resources once they've outlived their purpose
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
@@ -209,16 +257,42 @@ int main() {
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-    {
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
         mixValue += 0.1f;
         if (mixValue >= 1.0f)
             mixValue = 1.0f;
     }
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-    {
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
         mixValue -= 0.1f;
         if (mixValue <= 0.0f)
             mixValue = 0.0f;
     }
+}
+
+
+// Generates a texture that is suited for attachments to a framebuffer
+GLuint generateAttachmentTexture(GLboolean depth, GLboolean stencil) {
+    // What enum to use?
+    GLenum attachment_type;
+    if (!depth && !stencil)
+        attachment_type = GL_RGB;
+    else if (depth && !stencil)
+        attachment_type = GL_DEPTH_COMPONENT;
+    else if (!depth && stencil)
+        attachment_type = GL_STENCIL_INDEX;
+
+    //Generate texture ID and load texture data
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    if (!depth && !stencil)
+        glTexImage2D(GL_TEXTURE_2D, 0, attachment_type, WIDTH, HEIGHT, 0, attachment_type, GL_UNSIGNED_BYTE, NULL);
+    else // Using both a stencil and depth test, needs special format arguments
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8,
+                     NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    return textureID;
 }
